@@ -27,7 +27,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 
 # vercel
 .vercel
@@ -41,3 +40,6 @@ public/videos/video_hero_banner.mp4
 
 # uploaded images (uncomment if you don't want to track uploads in git)
 # public/uploads/
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat
