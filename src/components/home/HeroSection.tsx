@@ -25,7 +25,7 @@ export default function HeroSection({ locale }: HeroSectionProps) {
     '/images/logos/Black Beige Bold Framed Typography Planet Brand Business Logo.png',
     '/images/logos/Black White Minimal Design Studio Logo (3).png',
     '/images/logos/Black White Minimal Design Studio Logo (4).png',
-    '/images/logos/Black White Minimal Design Studio Logo (5).png',
+    // 'Green and White Simple Technology Logo (3).png',
     // '/images/logos/Green and White Simple Technology Logo (1).png',
     // '/images/logos/Green and White Simple Technology Logo (2).png',
     // '/images/logos/Green and White Simple Technology Logo (3).png',
