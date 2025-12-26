@@ -80,9 +80,12 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
   };
 
   const getPriceDisplayText = () => {
-    const minText = formatPrice(priceRange.min);
-    const maxText = formatPrice(priceRange.max);
-    return `${minText} - ${maxText}`;
+    let minText = formatPrice(priceRange.min).toLowerCase();
+    let maxText = formatPrice(priceRange.max).toLowerCase();
+    // Replace "m" with "million" for better readability
+    minText = minText.replace('m', 'million');
+    maxText = maxText.replace('m', 'million');
+    return `${minText} to ${maxText}`;
   };
 
   const getPercentage = (value: number) => {
@@ -91,11 +94,13 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
 
   const handleSliderMouseDown = (type: 'min' | 'max', e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(type);
   };
 
   const handleSliderMove = useCallback((e: MouseEvent | TouchEvent) => {
     if (!isDragging) return;
+    e.preventDefault();
     
     const sliderContainer = document.querySelector('.price-slider-container');
     const slider = sliderContainer?.querySelector('.price-slider-track') as HTMLElement;
@@ -107,11 +112,11 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
     const value = minPrice + (percent / 100) * (maxPrice - minPrice);
     
     if (isDragging === 'min') {
-      setPriceRange(prev => ({ ...prev, min: Math.min(Math.round(value), prev.max - 1000) }));
+      setPriceRange(prev => ({ ...prev, min: Math.min(Math.round(value), prev.max - 10000) }));
     } else {
-      setPriceRange(prev => ({ ...prev, max: Math.max(Math.round(value), prev.min + 1000) }));
+      setPriceRange(prev => ({ ...prev, max: Math.max(Math.round(value), prev.min + 10000) }));
     }
-  }, [isDragging]);
+  }, [isDragging, minPrice, maxPrice]);
 
   useEffect(() => {
     if (isDragging) {
@@ -162,8 +167,7 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
 
   return (
     <div 
-      className={`relative z-10 mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ${hideTitle ? 'my-0' : '-mt-8 sm:-mt-12 md:-mt-16 mb-8 sm:mb-12 md:mb-16'}`}
-      style={{ maxWidth: 'calc(56rem + 50px)' }}
+      className={`relative z-10 mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ${hideTitle ? 'my-0' : '-mt-8 sm:-mt-12 md:-mt-16 mb-8 sm:mb-12 md:mb-16'} lg:max-w-[750px]`}
     >
       {!hideTitle && (
         <div className="text-center mb-6 sm:mb-8 mt-8 sm:mt-12">
@@ -174,17 +178,7 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
       )}
       
       {/* Glassmorphic Search Bar */}
-     
-
-
-
       <div className="glow-wrapper overflow-hidden lg:overflow-visible">
-    <div 
-        className="relative bg-white/10 backdrop-blur-xl rounded-2xl lg:rounded-full border border-white/20 p-2 sm:p-2 shadow-2xl search-bar-content overflow-hidden lg:overflow-visible"
-    >
-        {/* your whole search bar content */}
-
-        <div className="relative overflow-hidden lg:overflow-visible">
         <div 
           ref={borderContainerRef}
           className="relative bg-white/10 backdrop-blur-xl rounded-2xl lg:rounded-full border border-white/20 p-2 sm:p-3 lg:p-2 shadow-2xl overflow-hidden lg:overflow-visible"
@@ -356,7 +350,7 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
               />
             </rect>
           </svg>
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 sm:gap-3 p-1 sm:p-2 overflow-visible">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-1 sm:gap-1.5 p-1 sm:p-2 overflow-visible">
             {/* Buy / Rent Dropdown */}
             <div className="relative flex-shrink-0">
               <button
@@ -366,7 +360,7 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
                   setIsTypeOpen(false);
                   setIsAreaOpen(false);
                 }}
-                className="w-full lg:w-auto lg:min-w-[140px] flex items-center justify-between bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-4 py-2.5 sm:py-3 lg:py-3 text-white transition-all duration-200"
+                className="w-full lg:w-auto lg:min-w-[100px] flex items-center justify-between bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-3 py-2.5 sm:py-3 lg:py-3 text-white transition-all duration-200"
               >
                 <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
                   {purpose === 'buy' ? 'Buy / Rent' : 'Rent / Buy'}
@@ -404,7 +398,7 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
             </div>
 
             {/* Divider */}
-            <div className="hidden lg:block w-px h-8 bg-white/20 mx-2" />
+            <div className="hidden lg:block w-px h-8 bg-white/20 mx-1" />
 
             {/* Property Type Dropdown */}
             <div className="relative flex-shrink-0" style={{ zIndex: isTypeOpen ? 200 : 'auto' }}>
@@ -455,10 +449,10 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
             </div>
 
             {/* Divider */}
-            <div className="hidden lg:block w-px h-8 bg-white/20 mx-2" />
+            <div className="hidden lg:block w-px h-8 bg-white/20 mx-1" />
 
             {/* Area Dropdown */}
-            <div className="relative flex-1 min-w-0">
+            <div className="relative flex-1 min-w-0 lg:min-w-[140px]">
               <div className="relative">
                 <input
                   ref={areaInputRef}
@@ -475,10 +469,10 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
                 }}
                 onBlur={() => setTimeout(() => setIsAreaOpen(false), 200)}
                   onKeyDown={handleKeyDown}
-                  placeholder={t('searchPlaceholder.location')}
-                  className="w-full bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-4 py-2.5 sm:py-3 lg:py-3 pl-7 sm:pl-9 lg:pl-10 text-xs sm:text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
+                  placeholder="Area"
+                  className="w-full bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-3 py-2.5 sm:py-3 lg:py-3 pl-7 sm:pl-8 lg:pl-8 text-xs sm:text-sm text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all duration-200"
                 />
-                <MapPin className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 text-white/60 flex-shrink-0" />
+                <MapPin className="absolute left-2 sm:left-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 text-white/60 flex-shrink-0" />
               </div>
               {isAreaOpen && filteredLocations.length > 0 && (
                 <>
@@ -504,24 +498,39 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
             </div>
 
             {/* Divider */}
-            <div className="hidden lg:block w-px h-8 bg-white/20 mx-2" />
+            <div className="hidden lg:block w-px h-8 bg-white/20 mx-1" />
 
             {/* Price Range Slider - Inline */}
-            <div className="relative flex-1 min-w-0 price-slider-container">
-              <div className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-4 py-2.5 sm:py-3 lg:py-3">
-                  <div className="space-y-1.5 sm:space-y-2">
+            <div className="relative flex-[0.9] min-w-0 lg:min-w-[140px] price-slider-container">
+              <div className="bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl lg:rounded-full px-2.5 sm:px-3 lg:px-2.5 py-2.5 sm:py-3 lg:py-2.5">
+                  <div className="space-y-1 sm:space-y-1">
                   {/* Price Display */}
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-white">
-                    <Euro className="w-3.5 h-3.5 sm:w-4 flex-shrink-0" />
-                    <span className="text-xs sm:text-sm font-medium truncate">{getPriceDisplayText()}</span>
+                  <div className="flex items-center gap-1 text-white">
+                    <Euro className="w-2.5 h-2.5 sm:w-3 flex-shrink-0" />
+                    <span className="text-xs font-medium truncate">{getPriceDisplayText()}</span>
                   </div>
                   
                   {/* Slider Track */}
-                  <div className="relative">
-                    <div className="price-slider-track relative h-1.5 sm:h-2 bg-white/20 rounded-full">
+                  <div className="relative w-full py-1">
+                    <div 
+                      className="price-slider-track relative w-full h-1 bg-white/20 rounded-full cursor-pointer"
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                        const value = minPrice + (percent / 100) * (maxPrice - minPrice);
+                        const distanceToMin = Math.abs(value - priceRange.min);
+                        const distanceToMax = Math.abs(value - priceRange.max);
+                        
+                        if (distanceToMin < distanceToMax) {
+                          setPriceRange(prev => ({ ...prev, min: Math.min(Math.round(value), prev.max - 10000) }));
+                        } else {
+                          setPriceRange(prev => ({ ...prev, max: Math.max(Math.round(value), prev.min + 10000) }));
+                        }
+                      }}
+                    >
                       {/* Active Range */}
                       <div 
-                        className="absolute h-1.5 sm:h-2 bg-blue-500 rounded-full"
+                        className="absolute h-1 bg-blue-500 rounded-full"
                         style={{
                           left: `${getPercentage(priceRange.min)}%`,
                           width: `${getPercentage(priceRange.max) - getPercentage(priceRange.min)}%`,
@@ -530,16 +539,22 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
                       
                       {/* Min Handle */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4 sm:h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:bg-blue-700 transition-colors z-10 touch-none"
-                        style={{ left: `calc(${getPercentage(priceRange.min)}% - 8px)` }}
+                        className="absolute top-1/2 w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:bg-blue-700 transition-colors z-20 touch-none"
+                        style={{ 
+                          left: `${getPercentage(priceRange.min)}%`,
+                          transform: 'translate(-50%, -50%)',
+                        }}
                         onMouseDown={(e) => handleSliderMouseDown('min', e)}
                         onTouchStart={(e) => handleSliderMouseDown('min', e)}
                       />
                       
                       {/* Max Handle */}
                       <div
-                        className="absolute top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4 sm:h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:bg-blue-700 transition-colors z-10 touch-none"
-                        style={{ left: `calc(${getPercentage(priceRange.max)}% - 8px)` }}
+                        className="absolute top-1/2 w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg cursor-grab active:cursor-grabbing hover:bg-blue-700 transition-colors z-20 touch-none"
+                        style={{ 
+                          left: `${getPercentage(priceRange.max)}%`,
+                          transform: 'translate(-50%, -50%)',
+                        }}
                         onMouseDown={(e) => handleSliderMouseDown('max', e)}
                         onTouchStart={(e) => handleSliderMouseDown('max', e)}
                       />
@@ -550,22 +565,20 @@ export default function HeroSearchBar({ locale, hideTitle = false }: HeroSearchB
             </div>
 
             {/* Divider */}
-            <div className="hidden lg:block w-px h-8 bg-white/20 mx-2" />
+            <div className="hidden lg:block w-px h-8 bg-white/20 mx-1" />
 
             {/* Search Button */}
             <button
               type="button"
               onClick={handleSearch}
-              className="w-full lg:w-auto flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-sm sm:text-base font-semibold rounded-xl lg:rounded-full px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 flex items-center justify-center gap-2 whitespace-nowrap"
+              className="w-full lg:w-auto flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-xs sm:text-sm font-semibold rounded-xl lg:rounded-full px-3 sm:px-4 lg:px-5 py-2.5 sm:py-3 lg:py-2.5 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/50 flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
-              <Search className="w-4 h-4 sm:w-5 flex-shrink-0" />
+              <Search className="w-3.5 h-3.5 sm:w-3.5 flex-shrink-0" />
               <span>Search</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
-</div>
     </div>
   );
 }
